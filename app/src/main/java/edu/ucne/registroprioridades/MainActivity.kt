@@ -4,6 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,11 +18,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -30,18 +38,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.room.Room
 import edu.ucne.registroprioridades.data.local.database.PrioridadDb
 import edu.ucne.registroprioridades.data.local.entities.PrioridadEntity
 import edu.ucne.registroprioridades.ui.theme.RegistroPrioridadesTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var prioridadDb: PrioridadDb
@@ -74,7 +87,143 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun PrioridadScreen() {
+        var descripcion by remember { mutableStateOf("") }
+        var diasCompromiso by remember { mutableStateOf("") }
+        var errorMessage: String? by remember { mutableStateOf(null) }
 
+        val focusManager = LocalFocusManager.current
+
+        Scaffold { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(8.dp)
+                    .clickable { focusManager.clearFocus() },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = "Prioridades",
+                    style = MaterialTheme.typography.headlineLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF0275d8)
+
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+
+                    DescripcionTextField(
+                        descripcion = descripcion,
+                        onDescripcionChange = { descripcion = it }
+                    )
+                    DiasCompromisoTextField(
+                        diasCompromiso = diasCompromiso,
+                        onDiasCompromisoChange = { diasCompromiso = it }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+
+                errorMessage?.let {
+                    Text(
+                        text = it,
+                        color = Color.Red,
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = {
+                            descripcion = ""
+                            diasCompromiso = ""
+                        },
+                        colors = ButtonDefaults.buttonColors(Color.DarkGray)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "New"
+                        )
+                        Text(text = "Nuevo")
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    val scope = rememberCoroutineScope()
+
+                    Button(
+                        colors = ButtonDefaults.buttonColors(Color(0xFF198754)),
+                        onClick = {
+
+                            scope.launch {
+                                val existingPrioridad = prioridadDb.prioridadDao().findByDescription(descripcion)
+                                if (existingPrioridad != null) {
+                                    errorMessage = "Ya existe esta descripción"
+                                    return@launch
+                                }
+                            }
+
+                            if (descripcion.isBlank() || diasCompromiso.isBlank()) {
+                                errorMessage = "Por favor, complete todos los campos"
+                                return@Button
+                            }
+
+
+                            val dias = diasCompromiso.toIntOrNull()
+                            if (dias == null) {
+                                errorMessage = "El número de días debe ser un número entero"
+                                return@Button
+                            }
+
+                            scope.launch {
+                                savePrioridad(
+                                    PrioridadEntity(
+                                        descripcion = descripcion,
+                                        diasCompromiso = dias
+                                    )
+                                )
+                                descripcion = ""
+                                diasCompromiso = ""
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add"
+                        )
+                        Text(text = "Guardar")
+                    }
+
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ){
+                    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                    val prioridadList by prioridadDb.prioridadDao().getall()
+                        .collectAsStateWithLifecycle(
+                            initialValue = emptyList(),
+                            lifecycleOwner = lifecycleOwner,
+                            minActiveState = Lifecycle.State.STARTED
+                        )
+                    PrioridadListScreen(prioridadList)
+                }
+            }
+        }
     }
 
     @Composable
