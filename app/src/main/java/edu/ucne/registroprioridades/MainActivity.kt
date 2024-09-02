@@ -49,6 +49,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.room.Room
 import edu.ucne.registroprioridades.data.local.database.PrioridadDb
@@ -87,10 +88,10 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun PrioridadScreen() {
+
         var descripcion by remember { mutableStateOf("") }
         var diasCompromiso by remember { mutableStateOf("") }
         var errorMessage: String? by remember { mutableStateOf(null) }
-
         val focusManager = LocalFocusManager.current
 
         Scaffold { innerPadding ->
@@ -107,9 +108,7 @@ class MainActivity : ComponentActivity() {
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF0275d8)
-
                 )
-
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -128,7 +127,6 @@ class MainActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-
                 errorMessage?.let {
                     Text(
                         text = it,
@@ -138,9 +136,7 @@ class MainActivity : ComponentActivity() {
                     )
                 }
 
-
                 Spacer(modifier = Modifier.height(16.dp))
-
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -150,6 +146,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             descripcion = ""
                             diasCompromiso = ""
+                            errorMessage = ""
                         },
                         colors = ButtonDefaults.buttonColors(Color.DarkGray)
                     ) {
@@ -161,7 +158,6 @@ class MainActivity : ComponentActivity() {
                     }
 
                     Spacer(modifier = Modifier.width(8.dp))
-
                     val scope = rememberCoroutineScope()
 
                     Button(
@@ -170,33 +166,27 @@ class MainActivity : ComponentActivity() {
 
                             scope.launch {
                                 val existingPrioridad = prioridadDb.prioridadDao().findByDescription(descripcion)
+                                val dias = diasCompromiso.toIntOrNull()
+
                                 if (existingPrioridad != null) {
                                     errorMessage = "Ya existe esta descripción"
                                     return@launch
-                                }
-                            }
-
-                            if (descripcion.isBlank() || diasCompromiso.isBlank()) {
-                                errorMessage = "Por favor, complete todos los campos"
-                                return@Button
-                            }
-
-
-                            val dias = diasCompromiso.toIntOrNull()
-                            if (dias == null) {
-                                errorMessage = "El número de días debe ser un número entero"
-                                return@Button
-                            }
-
-                            scope.launch {
-                                savePrioridad(
-                                    PrioridadEntity(
-                                        descripcion = descripcion,
-                                        diasCompromiso = dias
+                                }else if (descripcion.isBlank() || diasCompromiso.isBlank()) {
+                                    errorMessage = "Por favor, complete todos los campos"
+                                    return@launch
+                                }else if (dias == null) {
+                                    errorMessage = "El número de días debe ser un número entero"
+                                    return@launch
+                                }else{
+                                    savePrioridad(
+                                        PrioridadEntity(
+                                            descripcion = descripcion,
+                                            diasCompromiso = dias
+                                        )
                                     )
-                                )
-                                descripcion = ""
-                                diasCompromiso = ""
+                                    descripcion = ""
+                                    diasCompromiso = ""
+                                }
                             }
                         }
                     ) {
@@ -206,14 +196,13 @@ class MainActivity : ComponentActivity() {
                         )
                         Text(text = "Guardar")
                     }
-
                 }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp)
                 ){
-                    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                    val lifecycleOwner = LocalLifecycleOwner.current
                     val prioridadList by prioridadDb.prioridadDao().getall()
                         .collectAsStateWithLifecycle(
                             initialValue = emptyList(),
@@ -370,7 +359,7 @@ class MainActivity : ComponentActivity() {
 
     @Preview(showBackground = true, showSystemUi = true)
     @Composable
-    fun GreetingPreview() {
+    fun PrioridadScreenPreview() {
         RegistroPrioridadesTheme {
             PrioridadScreen()
         }
