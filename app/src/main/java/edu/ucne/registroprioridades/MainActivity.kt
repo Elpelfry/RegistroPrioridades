@@ -186,6 +186,7 @@ class MainActivity : ComponentActivity() {
                                     )
                                     descripcion = ""
                                     diasCompromiso = ""
+                                    errorMessage = ""
                                 }
                             }
                         }
