@@ -1,12 +1,9 @@
 package edu.ucne.registroprioridades.presentation.components
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -21,15 +18,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import edu.ucne.registroprioridades.presentation.prioridad.PrioridadUIState
+import edu.ucne.registroprioridades.presentation.prioridad.UiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DiasCompromisoTextField(
-    uiState: PrioridadUIState,
-    onDiasCompromisoChange: (String) -> Unit
+    uiState: UiState,
+    onChange: (String) -> Unit
 ) {
     val rango = (1..31).map { it.toString() }
     var expanded by remember { mutableStateOf(false) }
@@ -43,7 +39,7 @@ fun DiasCompromisoTextField(
         OutlinedTextField(
             readOnly = true,
             value = uiState.diasCompromiso?.toString() ?: "",
-            onValueChange = onDiasCompromisoChange,
+            onValueChange = onChange,
             label = { Text("Días Compromiso") },
             isError = (uiState.errorDias != ""),
             modifier = Modifier
@@ -68,7 +64,7 @@ fun DiasCompromisoTextField(
                 DropdownMenuItem(
                     text = { Text(dia) },
                     onClick = {
-                        onDiasCompromisoChange(dia)
+                        onChange(dia)
                         expanded = false
                     }
                 )
