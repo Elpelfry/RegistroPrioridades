@@ -1,4 +1,4 @@
-package edu.ucne.registroprioridades.presentation.prioridad
+package edu.ucne.registroprioridades.presentation.ticket
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -42,56 +42,56 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.registroprioridades.data.local.entities.PrioridadEntity
+import edu.ucne.registroprioridades.data.local.entities.TicketEntity
 import edu.ucne.registroprioridades.presentation.components.TopBarComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun PrioridadListScreen(
-    viewModel: PrioridadViewModel = hiltViewModel(),
+fun TicketListScreen(
+    viewModel: TicketViewModel = hiltViewModel(),
     onEdit: (Int) -> Unit,
-    onAddPrioridad: () -> Unit,
+    onAddTicket: () -> Unit,
     onDrawer: () -> Unit
 )  {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    PrioridadListBody(
+    TicketListBody(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         onEdit = onEdit,
-        onAddPrioridad = onAddPrioridad,
+        onAddTicket = onAddTicket,
         onDrawer = onDrawer
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrioridadListBody(
+fun TicketListBody(
     uiState: UiState,
-    onEvent: (PrioridadUiState) -> Unit,
+    onEvent: (TicketUiState) -> Unit,
     onEdit: (Int) -> Unit,
-    onAddPrioridad: () -> Unit,
+    onAddTicket: () -> Unit,
     onDrawer: () -> Unit
 ) {
-    Scaffold (
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBarComponent(
-                title = "Prioridades",
+                title = "Tickets",
                 onMenuClick = { onDrawer() }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddPrioridad,
+                onClick = onAddTicket,
                 containerColor = Color(0xFF0275d8),
                 contentColor = Color.White
             ) {
-                Icon(Icons.Filled.Add, "Agregar nueva entidad")
+                Icon(Icons.Filled.Add, "Agregar nuevo ticket")
             }
         }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -100,7 +100,7 @@ fun PrioridadListBody(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(uiState.prioridades) { prioridad ->
+                items(uiState.tickets) { ticket ->
 
                     val coroutineScope = rememberCoroutineScope()
                     val dismissState = rememberSwipeToDismissBoxState(
@@ -108,7 +108,7 @@ fun PrioridadListBody(
                             if (state == SwipeToDismissBoxValue.EndToStart) {
                                 coroutineScope.launch {
                                     delay(0.5.seconds)
-                                    onEvent(PrioridadUiState.Delete(prioridad.prioridadId))
+                                    onEvent(TicketUiState.Delete(ticket.ticketId))
                                 }
                                 true
                             } else {
@@ -140,7 +140,6 @@ fun PrioridadListBody(
                                     tint = Color.White
                                 )
                             }
-
                         },
                         modifier = Modifier
                     ) {
@@ -149,7 +148,7 @@ fun PrioridadListBody(
                                 .fillMaxWidth()
                                 .padding(8.dp)
                                 .clickable {
-                                    prioridad.prioridadId?.let { it1 -> onEdit(prioridad.prioridadId) }
+                                    ticket.ticketId?.let { it1 -> onEdit(ticket.ticketId) }
                                 }
                                 .border(0.5.dp, Color(0xFF0275d8), RoundedCornerShape(8.dp)),
                             elevation = CardDefaults.cardElevation(8.dp),
@@ -168,14 +167,21 @@ fun PrioridadListBody(
                                     modifier = Modifier.weight(4f),
                                 ) {
                                     Text(
-                                        text = prioridad.descripcion,
+                                        text = ticket.asunto,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF0275d8)
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Días Compromiso: ${prioridad.diasCompromiso?.toString() ?: "N/A"}",
+                                        text = "Cliente: ${ticket.cliente}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.DarkGray,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Fecha: ${ticket.fecha}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.DarkGray,
                                         fontWeight = FontWeight.Bold,
@@ -188,6 +194,7 @@ fun PrioridadListBody(
                             )
                         }
                     }
+
                 }
             }
         }
@@ -196,30 +203,23 @@ fun PrioridadListBody(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun PrioridadListPreview() {
+fun TicketListScreenPreview() {
 
-    val prioridades = listOf(
-        PrioridadEntity(
+    val tickets = (1..10).map {
+        TicketEntity(
+            ticketId = it,
+            fecha = "2021-10-10",
             prioridadId = 1,
-            descripcion = "Alta",
-            diasCompromiso = 1
-        ),
-        PrioridadEntity(
-            prioridadId = 2,
-            descripcion = "Media",
-            diasCompromiso = 3
-        ),
-        PrioridadEntity(
-            prioridadId = 3,
-            descripcion = "Baja",
-            diasCompromiso = 7
+            cliente = "Cliente $it",
+            asunto = "Asunto $it",
+            descripcion = "Descripción $it"
         )
-    )
-    PrioridadListBody(
-        uiState = UiState(prioridades = prioridades),
+    }
+    TicketListBody(
+        uiState = UiState(tickets = tickets),
         onEvent = {},
         onEdit = {},
-        onAddPrioridad = {},
+        onAddTicket = {},
         onDrawer = {}
     )
 }

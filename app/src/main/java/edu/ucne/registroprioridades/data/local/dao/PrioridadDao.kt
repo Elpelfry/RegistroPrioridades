@@ -22,16 +22,6 @@ interface PrioridadDao {
     )
     suspend fun find(id: Int): PrioridadEntity?
 
-    @Query(
-        """
-        SELECT * 
-        FROM Prioridades
-        WHERE LOWER(descripcion) = LOWER(:descripcion)
-        LIMIT 1
-        """
-    )
-    suspend fun findByDescription(descripcion: String): PrioridadEntity?
-
     @Delete
     suspend fun delete(prioridad: PrioridadEntity)
 

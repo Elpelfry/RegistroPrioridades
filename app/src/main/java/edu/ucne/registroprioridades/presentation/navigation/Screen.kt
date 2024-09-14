@@ -1,6 +1,5 @@
 package edu.ucne.registroprioridades.presentation.navigation
 
-import edu.ucne.registroprioridades.data.local.entities.PrioridadEntity
 import kotlinx.serialization.Serializable
 
 sealed class Screen{
@@ -9,5 +8,7 @@ sealed class Screen{
     @Serializable
     data class Prioridad(val prioridadId: Int): Screen()
     @Serializable
-    data class PrioridadDelete(val prioridadId: Int): Screen()
+    object TicketList: Screen()
+    @Serializable
+    data class Ticket(val ticketId: Int): Screen()
 }

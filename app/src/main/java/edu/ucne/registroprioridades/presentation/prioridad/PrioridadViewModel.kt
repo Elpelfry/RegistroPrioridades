@@ -2,116 +2,142 @@ package edu.ucne.registroprioridades.presentation.prioridad
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.registroprioridades.data.local.entities.PrioridadEntity
 import edu.ucne.registroprioridades.data.repository.PrioridadRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PrioridadViewModel(
-    private val repository: PrioridadRepository,
-    private val prioridadId: Int
-):ViewModel() {
-    var uiState = MutableStateFlow(PrioridadUIState())
-        private set
-
-    val prioridad = repository.getPrioridades()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = emptyList()
-        )
+@HiltViewModel
+class PrioridadViewModel @Inject constructor(
+    private val prioridadRepository: PrioridadRepository
+) :ViewModel() {
+    private val _uiState = MutableStateFlow(UiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
+        getPrioridades()
+    }
+
+    fun onEvent(event: PrioridadUiState) {
+        when (event) {
+            is PrioridadUiState.DescripcionChange -> onDescripcionChanged(event.des)
+            is PrioridadUiState.DiasChange -> onDiasCompromisoChanged(event.dia)
+            is PrioridadUiState.SelectPrioridad -> selectedPrioridad(event.prioridadId)
+            PrioridadUiState.Save -> savePrioridad()
+            is PrioridadUiState.Delete -> deletePrioridad(event.prioridadId)
+            PrioridadUiState.New -> newPrioridad()
+            PrioridadUiState.Validation -> uiState.value.validation = validation()
+        }
+    }
+
+   private fun savePrioridad( ) {
         viewModelScope.launch {
-            val prioridad = repository.getPrioridad(prioridadId)
-            prioridad?.let {
-                uiState.update {
-                    it.copy(
-                        prioridadId = prioridad.prioridadId,
-                        descripcion = prioridad.descripcion ?: "",
-                        diasCompromiso = prioridad.diasCompromiso
-                    )
+            prioridadRepository.save(uiState.value.toEntity())
+            getPrioridades()
+
+        }
+    }
+
+    private fun deletePrioridad(prioridadId: Int?) {
+        viewModelScope.launch {
+            val prioridad = prioridadRepository.find(prioridadId!!)
+            if (prioridad != null) {
+                prioridadRepository.delete(prioridad)
+                getPrioridades()
+            }
+        }
+    }
+
+    private fun newPrioridad() {
+        _uiState.update {
+            it.copy(
+                prioridadId = null,
+                descripcion = "",
+                diasCompromiso = null,
+                errorDescripcion = "",
+                errorDias = "",
+                validation = false
+            )
+        }
+    }
+
+    private fun getPrioridades() {
+        viewModelScope.launch {
+            prioridadRepository.getAll().collect{ prioridad ->
+                _uiState.update {
+                    it.copy(prioridades = prioridad)
                 }
             }
         }
     }
 
-    fun onDiasCompromisoChanged(diasCompromisoStr: String) {
+    private fun selectedPrioridad(prioridadId: Int){
+        viewModelScope.launch {
+            if(prioridadId > 0){
+                val prioridad = prioridadRepository.find(prioridadId)
+                    _uiState.update {
+                        it.copy(
+                            prioridadId = prioridad?.prioridadId,
+                            descripcion = prioridad?.descripcion ?: "",
+                            diasCompromiso = prioridad?.diasCompromiso
+                        )
+                    }
+
+            }
+        }
+    }
+
+    private fun onDiasCompromisoChanged(diasCompromisoStr: String) {
         val diasCompromiso = diasCompromisoStr.toIntOrNull()
         val errorMessage = if (diasCompromiso == null || diasCompromiso <= 0) {
             "Días debe ser mayor a 0."
         } else null
-        uiState.update { currentState ->
-            currentState.copy(
+        _uiState.update {
+            it.copy(
                 diasCompromiso = diasCompromiso,
                 errorDias = errorMessage ?: ""
             )
         }
     }
 
-    fun onDescripcionChanged(descripcion: String){
+    private fun onDescripcionChanged(descripcion: String){
         val errorMessage = if (descripcion.isEmpty()) "Descripción obligatoria." else null
-        uiState.update { currentState ->
-            currentState.copy(
+        _uiState.update {
+            it.copy(
                 descripcion = descripcion,
                 errorDescripcion = errorMessage ?: ""
             )
         }
     }
 
-    fun savePrioridad() {
-        viewModelScope.launch {
-            repository.savePrioridad(uiState.value.toEntity())
-            newPrioridad()
-        }
-    }
-
-    fun deletePrioridad() {
-        viewModelScope.launch {
-            repository.deletePrioridad(uiState.value.toEntity())
-        }
-    }
-
-    fun newPrioridad() {
-        viewModelScope.launch {
-            uiState.value = PrioridadUIState()
-        }
-    }
-
-    fun validation(): Boolean {
+    private fun validation(): Boolean {
         var descripcionEmpty = uiState.value.descripcion.isEmpty()
         val diasCompromisoInvalid = uiState.value.diasCompromiso == null || uiState.value.diasCompromiso!! <= 0
 
         if (descripcionEmpty) {
-            uiState.update { it.copy(errorDescripcion = "Descripción obligatoria.") }
+            _uiState.update { it.copy(errorDescripcion = "Descripción obligatoria.") }
         }
         else{
-            descripcionEmpty = prioridad.value.
+            descripcionEmpty = _uiState.value.prioridades.
             any{it.descripcion.trim().lowercase() == uiState.value.descripcion.trim().lowercase()
                     && it.prioridadId != uiState.value.prioridadId}
             if (descripcionEmpty) {
-                uiState.update { it.copy(errorDescripcion = "Descripción ya existe.") }
+                _uiState.update { it.copy(errorDescripcion = "Descripción ya existe.") }
             }
         }
         if (diasCompromisoInvalid) {
-            uiState.update { it.copy(errorDias = "Días debe ser mayor a 0.") }
+            _uiState.update { it.copy(errorDias = "Días debe ser mayor a 0.") }
         }
+
         return !descripcionEmpty && !diasCompromisoInvalid
     }
 }
 
-data class PrioridadUIState(
-    val prioridadId: Int? = null,
-    val descripcion: String = "",
-    val errorDias: String = "",
-    val diasCompromiso: Int? = null,
-    val errorDescripcion: String = "",
-)
-
-fun  PrioridadUIState.toEntity(): PrioridadEntity {
+fun  UiState.toEntity(): PrioridadEntity {
     return PrioridadEntity(
         prioridadId = prioridadId,
         descripcion = descripcion,

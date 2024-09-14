@@ -19,29 +19,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import edu.ucne.registroprioridades.presentation.prioridad.UiState
+import edu.ucne.registroprioridades.data.local.entities.PrioridadEntity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiasCompromisoTextField(
-    uiState: UiState,
-    onChange: (String) -> Unit
+fun InputSelectPrioridad(
+    prioridades: List<PrioridadEntity>,
+    value: Int?,
+    text: String,
+    error: Boolean,
+    errorMessage: String,
+    onChange: (Int) -> Unit
 ) {
-    val rango = (1..31).map { it.toString() }
     var expanded by remember { mutableStateOf(false) }
+    val selectedPriority = prioridades.find { it.prioridadId == value }?.descripcion ?: ""
 
     ExposedDropdownMenuBox(
         expanded = expanded,
-        onExpandedChange = {
-            expanded = !expanded
-        }
+        onExpandedChange = { expanded = !expanded }
     ) {
         OutlinedTextField(
             readOnly = true,
-            value = uiState.diasCompromiso?.toString() ?: "",
-            onValueChange = onChange,
-            label = { Text("Días Compromiso") },
-            isError = (uiState.errorDias != ""),
+            value = selectedPriority,
+            onValueChange = {},
+            label = { Text(text) },
+            isError = error,
             modifier = Modifier
                 .menuAnchor()
                 .fillMaxWidth(),
@@ -60,21 +62,21 @@ fun DiasCompromisoTextField(
             onDismissRequest = { expanded = false },
             modifier = Modifier.heightIn(max = 170.dp)
         ) {
-            rango.forEach { dia ->
+            prioridades.forEach { prioridad ->
                 DropdownMenuItem(
-                    text = { Text(dia) },
+                    text = { Text(prioridad.descripcion) },
                     onClick = {
-                        onChange(dia)
+                        prioridad.prioridadId?.let { onChange(it) }
                         expanded = false
                     }
                 )
             }
         }
     }
-    if(uiState.errorDias != "") {
+    if (error) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = uiState.errorDias,
+            text = errorMessage,
             color = Color.Red,
             modifier = Modifier.fillMaxWidth()
         )
