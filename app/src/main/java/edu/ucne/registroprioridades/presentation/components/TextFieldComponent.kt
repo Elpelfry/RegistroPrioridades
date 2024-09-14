@@ -1,7 +1,5 @@
 package edu.ucne.registroprioridades.presentation.components
 
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,19 +12,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import edu.ucne.registroprioridades.presentation.prioridad.PrioridadUIState
 
 @Composable
-fun DescripcionTextField(
-    uiState: PrioridadUIState,
-    onDescripcionChange: (String) -> Unit
+fun TextFieldComponent(
+    value: String,
+    text: String,
+    error: Boolean,
+    errorMessage: String,
+    onChange: (String) -> Unit
 ) {
     OutlinedTextField(
         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
-        label = { Text(text = "Descripción") },
-        value = uiState.descripcion,
-        onValueChange = onDescripcionChange,
-        isError = (uiState.errorDescripcion != ""),
+        label = { Text(text = text) },
+        value = value,
+        onValueChange = onChange,
+        isError = error,
         modifier = Modifier.fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = Color(0xFF0275d8),
@@ -36,10 +36,10 @@ fun DescripcionTextField(
             unfocusedBorderColor = Color(0xFF0275d8),
         )
     )
-    if(uiState.errorDescripcion != "") {
+    if(error) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = uiState.errorDescripcion,
+            text = errorMessage,
             color = Color.Red,
             modifier = Modifier.fillMaxWidth()
 
