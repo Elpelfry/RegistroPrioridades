@@ -42,7 +42,7 @@ fun TicketScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = true) {
         if (ticketId != null) {
-            viewModel.onEvent(TicketUiState.SelectTicket(ticketId))
+            viewModel.onEvent(TicketEvent.SelectTicket(ticketId))
         }
     }
     TicketBody(
@@ -56,7 +56,7 @@ fun TicketScreen(
 @Composable
 fun TicketBody(
     uiState: UiState,
-    onEvent: (TicketUiState) -> Unit,
+    onEvent: (TicketEvent) -> Unit,
     goTicketList: () -> Unit,
     onDrawer: () -> Unit
 ) {
@@ -86,25 +86,25 @@ fun TicketBody(
                         text = "Cliente",
                         error = (uiState.errorCliente != ""),
                         errorMessage = uiState.errorCliente,
-                        onChange = { onEvent(TicketUiState.ClienteChange(it)) }
+                        onChange = { onEvent(TicketEvent.ClienteChange(it)) }
                     )
                     TextFieldComponent(
                         value = uiState.asunto,
                         text = "Asunto",
                         error = (uiState.errorAsunto != ""),
                         errorMessage = uiState.errorAsunto,
-                        onChange = { onEvent(TicketUiState.AsuntoChange(it)) }
+                        onChange = { onEvent(TicketEvent.AsuntoChange(it)) }
                     )
                     TextFieldComponent(
                         value = uiState.descripcion,
                         text = "Descripción",
                         error = (uiState.errorDescripcion != ""),
                         errorMessage = uiState.errorDescripcion,
-                        onChange = { onEvent(TicketUiState.DescripcionChange(it)) }
+                        onChange = { onEvent(TicketEvent.DescripcionChange(it)) }
                     )
                     DatePickerField(
                         value = uiState.fecha,
-                        onChange = { onEvent(TicketUiState.FechaChange(it)) },
+                        onChange = { onEvent(TicketEvent.FechaChange(it)) },
                         text = "Fecha",
                         isError = (uiState.errorFecha != ""),
                         errorMessage = uiState.errorFecha
@@ -115,7 +115,7 @@ fun TicketBody(
                         text = "Prioridad",
                         error = (uiState.errorPrioridad != ""),
                         errorMessage = uiState.errorPrioridad,
-                        onChange = { onEvent(TicketUiState.PrioridadChange(it.toString())) }
+                        onChange = { onEvent(TicketEvent.PrioridadChange(it.toString())) }
                     )
                 }
             }
@@ -129,7 +129,7 @@ fun TicketBody(
                 ) {
                     Button(
                         onClick = {
-                            onEvent(TicketUiState.New)
+                            onEvent(TicketEvent.New)
                         },
                         colors = ButtonDefaults.buttonColors(Color.DarkGray)
                     ) {
@@ -144,9 +144,9 @@ fun TicketBody(
                     Button(
                         colors = ButtonDefaults.buttonColors(Color(0xFF198754)),
                         onClick = {
-                            onEvent(TicketUiState.Validation)
+                            onEvent(TicketEvent.Validation)
                             if (uiState.validation) {
-                                onEvent(TicketUiState.Save)
+                                onEvent(TicketEvent.Save)
                                 goTicketList()
                             }
                         }

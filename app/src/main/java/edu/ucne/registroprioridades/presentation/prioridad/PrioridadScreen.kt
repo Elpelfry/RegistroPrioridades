@@ -42,7 +42,7 @@ fun PrioridadScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = true) {
         if (prioridadId != null) {
-            viewModel.onEvent(PrioridadUiState.SelectPrioridad(prioridadId))
+            viewModel.onEvent(PrioridadEvent.SelectPrioridad(prioridadId))
         }
     }
     PrioridadBody(
@@ -56,7 +56,7 @@ fun PrioridadScreen(
 @Composable
 fun PrioridadBody(
     uiState: UiState,
-    onEvent: (PrioridadUiState) -> Unit,
+    onEvent: (PrioridadEvent) -> Unit,
     goPrioridadList: () -> Unit,
     onDrawer: () -> Unit
 
@@ -87,12 +87,12 @@ fun PrioridadBody(
                     text = "Descripción",
                     error = (uiState.errorDescripcion != ""),
                     errorMessage = uiState.errorDescripcion,
-                    onChange = { onEvent(PrioridadUiState.DescripcionChange(it)) }
+                    onChange = { onEvent(PrioridadEvent.DescripcionChange(it)) }
                 )
 
                 DiasCompromisoTextField(
                     uiState = uiState,
-                    onChange = { onEvent(PrioridadUiState.DiasChange(it)) }
+                    onChange = { onEvent(PrioridadEvent.DiasChange(it)) }
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -103,7 +103,7 @@ fun PrioridadBody(
             ) {
                 Button(
                     onClick = {
-                        onEvent(PrioridadUiState.New)
+                        onEvent(PrioridadEvent.New)
                     },
                     colors = ButtonDefaults.buttonColors(Color.DarkGray)
                 ) {
@@ -118,9 +118,9 @@ fun PrioridadBody(
                 Button(
                     colors = ButtonDefaults.buttonColors(Color(0xFF198754)),
                     onClick = {
-                        onEvent(PrioridadUiState.Validation)
+                        onEvent(PrioridadEvent.Validation)
                         if(uiState.validation){
-                            onEvent(PrioridadUiState.Save)
+                            onEvent(PrioridadEvent.Save)
                             goPrioridadList()
                         }
                     }

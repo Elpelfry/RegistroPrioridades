@@ -69,7 +69,7 @@ fun TicketListScreen(
 @Composable
 fun TicketListBody(
     uiState: UiState,
-    onEvent: (TicketUiState) -> Unit,
+    onEvent: (TicketEvent) -> Unit,
     onEdit: (Int) -> Unit,
     onAddTicket: () -> Unit,
     onDrawer: () -> Unit
@@ -108,7 +108,7 @@ fun TicketListBody(
                             if (state == SwipeToDismissBoxValue.EndToStart) {
                                 coroutineScope.launch {
                                     delay(0.5.seconds)
-                                    onEvent(TicketUiState.Delete(ticket.ticketId))
+                                    onEvent(TicketEvent.Delete(ticket.ticketId))
                                 }
                                 true
                             } else {

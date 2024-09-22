@@ -25,18 +25,18 @@ class TicketViewModel @Inject constructor(
         getTickets()
     }
 
-    fun onEvent(event: TicketUiState) {
+    fun onEvent(event: TicketEvent) {
         when (event) {
-            is TicketUiState.FechaChange -> onFechaChanged(event.fecha)
-            is TicketUiState.PrioridadChange -> onPrioridadChanged(event.prioridadId)
-            is TicketUiState.ClienteChange -> onClienteChanged(event.cliente)
-            is TicketUiState.AsuntoChange -> onAsuntoChanged(event.asunto)
-            is TicketUiState.DescripcionChange -> onDescripcionChanged(event.descripcion)
-            TicketUiState.Save -> saveTicket()
-            is TicketUiState.Delete -> deleteTicket(event.ticketId)
-            TicketUiState.New -> newTicket()
-            TicketUiState.Validation -> _uiState.value.validation = validation()
-            is TicketUiState.SelectTicket -> SelectTicket(event.ticketId)
+            is TicketEvent.FechaChange -> onFechaChanged(event.fecha)
+            is TicketEvent.PrioridadChange -> onPrioridadChanged(event.prioridadId)
+            is TicketEvent.ClienteChange -> onClienteChanged(event.cliente)
+            is TicketEvent.AsuntoChange -> onAsuntoChanged(event.asunto)
+            is TicketEvent.DescripcionChange -> onDescripcionChanged(event.descripcion)
+            TicketEvent.Save -> saveTicket()
+            is TicketEvent.Delete -> deleteTicket(event.ticketId)
+            TicketEvent.New -> newTicket()
+            TicketEvent.Validation -> _uiState.value.validation = validation()
+            is TicketEvent.SelectTicket -> SelectTicket(event.ticketId)
         }
     }
 

@@ -22,15 +22,15 @@ class PrioridadViewModel @Inject constructor(
         getPrioridades()
     }
 
-    fun onEvent(event: PrioridadUiState) {
+    fun onEvent(event: PrioridadEvent) {
         when (event) {
-            is PrioridadUiState.DescripcionChange -> onDescripcionChanged(event.des)
-            is PrioridadUiState.DiasChange -> onDiasCompromisoChanged(event.dia)
-            is PrioridadUiState.SelectPrioridad -> selectedPrioridad(event.prioridadId)
-            PrioridadUiState.Save -> savePrioridad()
-            is PrioridadUiState.Delete -> deletePrioridad(event.prioridadId)
-            PrioridadUiState.New -> newPrioridad()
-            PrioridadUiState.Validation -> uiState.value.validation = validation()
+            is PrioridadEvent.DescripcionChange -> onDescripcionChanged(event.des)
+            is PrioridadEvent.DiasChange -> onDiasCompromisoChanged(event.dia)
+            is PrioridadEvent.SelectPrioridad -> selectedPrioridad(event.prioridadId)
+            PrioridadEvent.Save -> savePrioridad()
+            is PrioridadEvent.Delete -> deletePrioridad(event.prioridadId)
+            PrioridadEvent.New -> newPrioridad()
+            PrioridadEvent.Validation -> uiState.value.validation = validation()
         }
     }
 

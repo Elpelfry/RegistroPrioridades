@@ -69,7 +69,7 @@ fun PrioridadListScreen(
 @Composable
 fun PrioridadListBody(
     uiState: UiState,
-    onEvent: (PrioridadUiState) -> Unit,
+    onEvent: (PrioridadEvent) -> Unit,
     onEdit: (Int) -> Unit,
     onAddPrioridad: () -> Unit,
     onDrawer: () -> Unit
@@ -108,7 +108,7 @@ fun PrioridadListBody(
                             if (state == SwipeToDismissBoxValue.EndToStart) {
                                 coroutineScope.launch {
                                     delay(0.5.seconds)
-                                    onEvent(PrioridadUiState.Delete(prioridad.prioridadId))
+                                    onEvent(PrioridadEvent.Delete(prioridad.prioridadId))
                                 }
                                 true
                             } else {
