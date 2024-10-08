@@ -11,6 +11,8 @@ import androidx.navigation.toRoute
 import edu.ucne.registroprioridades.presentation.components.NavigationDrawer
 import edu.ucne.registroprioridades.presentation.prioridad.PrioridadListScreen
 import edu.ucne.registroprioridades.presentation.prioridad.PrioridadScreen
+import edu.ucne.registroprioridades.presentation.sistema.SistemaListScreen
+import edu.ucne.registroprioridades.presentation.sistema.SistemaScreen
 import edu.ucne.registroprioridades.presentation.ticket.TicketListScreen
 import edu.ucne.registroprioridades.presentation.ticket.TicketScreen
 import kotlinx.coroutines.launch
@@ -24,7 +26,8 @@ fun TicketNavHost(
     NavigationDrawer(
         drawerState = drawerState,
         navPrioridadList = { navController.navigate(Screen.PrioridadList) },
-        navTicketList = { navController.navigate(Screen.TicketList) }
+        navTicketList = { navController.navigate(Screen.TicketList) },
+        navSistemaList = { navController.navigate(Screen.SistemaList) }
     ){
         NavHost(
             navController = navController,
@@ -79,6 +82,35 @@ fun TicketNavHost(
                 TicketScreen(
                     ticketId = args.ticketId,
                     goTicketList = {
+                        navController.navigateUp()
+                    },
+                    onDrawer = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+            composable<Screen.SistemaList> {
+                SistemaListScreen(
+                    onEdit = {
+                        navController.navigate(Screen.Sistema(it))
+                    },
+                    onAddSistema = {
+                        navController.navigate(Screen.Sistema(0))
+                    },
+                    onDrawer = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+            composable<Screen.Sistema> {
+                val args = it.toRoute<Screen.Sistema>()
+                SistemaScreen(
+                    sistemaId = args.sistemaId,
+                    goSistemaList = {
                         navController.navigateUp()
                     },
                     onDrawer = {
