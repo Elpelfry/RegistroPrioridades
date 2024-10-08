@@ -37,6 +37,7 @@ fun NavigationDrawer(
     drawerState: DrawerState,
     navPrioridadList: () -> Unit,
     navTicketList: () -> Unit,
+    navSistemaList: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -48,6 +49,11 @@ fun NavigationDrawer(
         ),
         NavigationItem(
             title = "Tickets",
+            selectedIcon = Icons.Filled.Info,
+            unselectedIcon = Icons.Outlined.Info
+        ),
+        NavigationItem(
+            title = "Sistemas",
             selectedIcon = Icons.Filled.Info,
             unselectedIcon = Icons.Outlined.Info
         )
@@ -89,6 +95,7 @@ fun NavigationDrawer(
                             when (item.title) {
                                 "Prioridades" -> {navPrioridadList()}
                                 "Tickets" -> {navTicketList()}
+                                "Sistemas" -> {navSistemaList()}
                             }
                         }
                     )

@@ -42,7 +42,6 @@ fun TextFieldComponent(
             text = errorMessage,
             color = Color.Red,
             modifier = Modifier.fillMaxWidth()
-
         )
     }
 }

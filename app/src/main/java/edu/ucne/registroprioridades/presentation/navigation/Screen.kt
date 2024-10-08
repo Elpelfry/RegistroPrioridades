@@ -11,4 +11,8 @@ sealed class Screen{
     object TicketList: Screen()
     @Serializable
     data class Ticket(val ticketId: Int): Screen()
+    @Serializable
+    object SistemaList: Screen()
+    @Serializable
+    data class Sistema(val sistemaId: Int): Screen()
 }
