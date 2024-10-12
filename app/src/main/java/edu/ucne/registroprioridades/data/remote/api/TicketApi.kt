@@ -1,4 +1,4 @@
-package edu.ucne.registroprioridades.data.remote
+package edu.ucne.registroprioridades.data.remote.api
 
 import edu.ucne.registroprioridades.data.remote.dto.SistemaDto
 import retrofit2.Response
