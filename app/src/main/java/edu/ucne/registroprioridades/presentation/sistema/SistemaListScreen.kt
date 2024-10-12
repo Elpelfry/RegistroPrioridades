@@ -172,14 +172,14 @@ fun SistemaListBody(
                                     modifier = Modifier.weight(4f),
                                 ) {
                                     Text(
-                                        text = sistema.nombreSistema,
+                                        text = sistema.nombre,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
                                         color = Color(0xFF0275d8)
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
-                                        text = "Descripción: ${sistema.descripcionSistema ?: "N/A"}",
+                                        text = "Descripción: ${sistema.descripcion ?: "N/A"}",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = Color.DarkGray,
                                         fontWeight = FontWeight.Bold,
@@ -205,8 +205,8 @@ private fun SistemaListPreview() {
     val sistemas = listOf(
         SistemaDto(
             sistemaId = 1,
-            nombreSistema = "Sistema 1",
-            descripcionSistema = "Descripción del sistema 1",
+            nombre = "Sistema 1",
+            descripcion = "Descripción del sistema 1",
         ),
     )
     SistemaListBody(

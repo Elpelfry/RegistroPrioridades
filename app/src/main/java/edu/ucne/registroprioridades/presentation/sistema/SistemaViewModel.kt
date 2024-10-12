@@ -56,8 +56,8 @@ class SistemaViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     sistemaId = sistema?.sistemaId,
-                    nombreSistema = sistema?.nombreSistema ?: "",
-                    descripcionSistema = sistema?.descripcionSistema ?: ""
+                    nombre = sistema?.nombre ?: "",
+                    descripcion = sistema?.descripcion ?: ""
                 )
             }
         }
@@ -80,7 +80,7 @@ class SistemaViewModel @Inject constructor(
     private fun onDescripcionChanged(descripcion: String){
         _uiState.update {
             it.copy(
-                descripcionSistema = descripcion,
+                descripcion = descripcion,
                 errorDescripcion = if(descripcion.isEmpty()) "Campo descripción requerida" else ""
             )
         }
@@ -89,7 +89,7 @@ class SistemaViewModel @Inject constructor(
     private fun onNombreChanged(nombre: String){
         _uiState.update {
             it.copy(
-                nombreSistema = nombre,
+                nombre = nombre,
                 errorNombre = if(nombre.isEmpty()) "Campo nombre requerido" else ""
             )
         }
@@ -109,8 +109,8 @@ class SistemaViewModel @Inject constructor(
         _uiState.update {
             it.copy(
                 sistemaId = null,
-                nombreSistema = "",
-                descripcionSistema = ""
+                nombre = "",
+                descripcion = ""
             )
         }
     }
@@ -118,7 +118,7 @@ class SistemaViewModel @Inject constructor(
     private fun validation() : Boolean{
         var validacion = true
         getSistemas()
-        if(uiState.value.nombreSistema.isEmpty()){
+        if(uiState.value.nombre.isEmpty()){
             validacion = false
             _uiState.update {
                 it.copy(
@@ -127,7 +127,7 @@ class SistemaViewModel @Inject constructor(
             }
         }
         if(uiState.value.sistemas.any {
-            it.nombreSistema.lowercase().trim() == uiState.value.nombreSistema.lowercase().trim()
+            it.nombre.lowercase().trim() == uiState.value.nombre.lowercase().trim()
            && it.sistemaId != uiState.value.sistemaId }){
             validacion = false
             _uiState.update {
@@ -136,7 +136,7 @@ class SistemaViewModel @Inject constructor(
                 )
             }
         }
-        if(uiState.value.descripcionSistema.isEmpty()){
+        if(uiState.value.descripcion.isEmpty()){
             validacion = false
             _uiState.update {
                 it.copy(
@@ -150,6 +150,6 @@ class SistemaViewModel @Inject constructor(
 
 fun UiState.toEntity() = SistemaDto(
     sistemaId = sistemaId,
-    nombreSistema = nombreSistema,
-    descripcionSistema = descripcionSistema
+    nombre = nombre,
+    descripcion = descripcion
 )

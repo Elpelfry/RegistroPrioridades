@@ -80,14 +80,14 @@ fun SistemaBody(
             ) {
 
                 TextFieldComponent(
-                    value = uiState.nombreSistema,
+                    value = uiState.nombre,
                     text = "Nombre",
                     error = (uiState.errorNombre != ""),
                     errorMessage = uiState.errorNombre,
                     onChange = { onEvent(SistemaEvent.NombreChange(it)) }
                 )
                 TextFieldComponent(
-                    value = uiState.descripcionSistema,
+                    value = uiState.descripcion,
                     text = "Descripción",
                     error = (uiState.errorDescripcion != ""),
                     errorMessage = uiState.errorDescripcion,

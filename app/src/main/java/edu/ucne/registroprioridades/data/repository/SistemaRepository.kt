@@ -1,10 +1,7 @@
 package edu.ucne.registroprioridades.data.repository
 
-import edu.ucne.registroprioridades.data.remote.TicketApi
+import edu.ucne.registroprioridades.data.remote.api.TicketApi
 import edu.ucne.registroprioridades.data.remote.dto.SistemaDto
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import retrofit2.Response
 import javax.inject.Inject
 
 class SistemaRepository @Inject constructor(
