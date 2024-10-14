@@ -11,6 +11,8 @@ import androidx.navigation.toRoute
 import edu.ucne.registroprioridades.presentation.components.NavigationDrawer
 import edu.ucne.registroprioridades.presentation.prioridad.PrioridadListScreen
 import edu.ucne.registroprioridades.presentation.prioridad.PrioridadScreen
+import edu.ucne.registroprioridades.presentation.product.ProductListScreen
+import edu.ucne.registroprioridades.presentation.product.ProductScreen
 import edu.ucne.registroprioridades.presentation.sistema.SistemaListScreen
 import edu.ucne.registroprioridades.presentation.sistema.SistemaScreen
 import edu.ucne.registroprioridades.presentation.ticket.TicketListScreen
@@ -27,7 +29,8 @@ fun TicketNavHost(
         drawerState = drawerState,
         navPrioridadList = { navController.navigate(Screen.PrioridadList) },
         navTicketList = { navController.navigate(Screen.TicketList) },
-        navSistemaList = { navController.navigate(Screen.SistemaList) }
+        navSistemaList = { navController.navigate(Screen.SistemaList) },
+        navProductList = { navController.navigate(Screen.ProductList) }
     ){
         NavHost(
             navController = navController,
@@ -120,7 +123,35 @@ fun TicketNavHost(
                     }
                 )
             }
-
+            composable<Screen.ProductList> {
+                ProductListScreen(
+                    onEdit = {
+                        navController.navigate(Screen.Product(it))
+                    },
+                    onAddProduct = {
+                        navController.navigate(Screen.Product(0))
+                    },
+                    onDrawer = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
+            composable<Screen.Product> {
+                val args = it.toRoute<Screen.Product>()
+                ProductScreen(
+                    productId = args.productId,
+                    goProductList = {
+                        navController.navigateUp()
+                    },
+                    onDrawer = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    }
+                )
+            }
         }
     }
 

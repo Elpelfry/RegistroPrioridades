@@ -45,7 +45,7 @@ fun DatePickerField(
         modifier = modifier
             .fillMaxWidth()
             .then(clickModifier)
-            .border(1.dp, Color(0xFF0275d8), RoundedCornerShape(4.dp))
+            .border(1.dp, Color(0xFF415f91), RoundedCornerShape(4.dp))
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         Row(
@@ -54,14 +54,14 @@ fun DatePickerField(
         ) {
             Text(
                 text = value.ifEmpty { text },
-                color = if (value.isEmpty()) Color(0xFF0275d8) else Color.Black,
+                color = if (value.isEmpty()) Color(0xFF415f91) else Color.Black,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.weight(1f))
             trailingIcon?.invoke() ?: Icon(
                 imageVector = Icons.Filled.DateRange,
                 contentDescription = "Calendar Icon",
-                tint = Color(0xFF0275d8)
+                tint = Color(0xFF415f91)
             )
         }
     }
@@ -69,7 +69,7 @@ fun DatePickerField(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = errorMessage,
-            color = Color.Red,
+            color = Color(0xFFCB4238),
             modifier = Modifier.fillMaxWidth()
         )
     }

@@ -131,7 +131,7 @@ fun TicketBody(
                         onClick = {
                             onEvent(TicketEvent.New)
                         },
-                        colors = ButtonDefaults.buttonColors(Color.DarkGray)
+                        colors = ButtonDefaults.buttonColors(Color(0xFF565f71))
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
@@ -142,7 +142,7 @@ fun TicketBody(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
-                        colors = ButtonDefaults.buttonColors(Color(0xFF198754)),
+                        colors = ButtonDefaults.buttonColors(Color(0xFF415f91)),
                         onClick = {
                             onEvent(TicketEvent.Validation)
                             if (uiState.validation) {

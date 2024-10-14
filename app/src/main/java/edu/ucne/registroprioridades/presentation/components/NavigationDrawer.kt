@@ -38,22 +38,28 @@ fun NavigationDrawer(
     navPrioridadList: () -> Unit,
     navTicketList: () -> Unit,
     navSistemaList: () -> Unit,
+    navProductList: () -> Unit,
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val items = listOf(
-        NavigationItem(
-            title = "Prioridades",
-            selectedIcon = Icons.Filled.Info,
-            unselectedIcon = Icons.Outlined.Info
-        ),
         NavigationItem(
             title = "Tickets",
             selectedIcon = Icons.Filled.Info,
             unselectedIcon = Icons.Outlined.Info
         ),
         NavigationItem(
+            title = "Prioridades",
+            selectedIcon = Icons.Filled.Info,
+            unselectedIcon = Icons.Outlined.Info
+        ),
+        NavigationItem(
             title = "Sistemas",
+            selectedIcon = Icons.Filled.Info,
+            unselectedIcon = Icons.Outlined.Info
+        ),
+        NavigationItem(
+            title = "Products",
             selectedIcon = Icons.Filled.Info,
             unselectedIcon = Icons.Outlined.Info
         )
@@ -70,7 +76,7 @@ fun NavigationDrawer(
                     text = "Registro Tickets",
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0275d8),
+                    color = Color(0xFF415f91),
                     modifier = Modifier.padding(16.dp)
                 )
                 HorizontalDivider()
@@ -96,6 +102,7 @@ fun NavigationDrawer(
                                 "Prioridades" -> {navPrioridadList()}
                                 "Tickets" -> {navTicketList()}
                                 "Sistemas" -> {navSistemaList()}
+                                "Products" -> {navProductList()}
                             }
                         }
                     )

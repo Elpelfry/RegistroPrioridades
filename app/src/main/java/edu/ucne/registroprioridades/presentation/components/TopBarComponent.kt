@@ -1,5 +1,6 @@
 package edu.ucne.registroprioridades.presentation.components
 
+import android.provider.CalendarContract.Colors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -24,7 +25,7 @@ fun TopBarComponent(title: String, onMenuClick: () -> Unit) {
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF0275d8)
+                color = Color(0xFF415f91)
             )
         },
         navigationIcon = {

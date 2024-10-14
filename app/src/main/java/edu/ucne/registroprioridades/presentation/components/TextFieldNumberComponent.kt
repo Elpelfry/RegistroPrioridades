@@ -14,7 +14,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TextFieldComponent(
+fun TextFieldNumberComponent(
     value: String,
     text: String,
     error: Boolean,
@@ -22,7 +22,7 @@ fun TextFieldComponent(
     onChange: (String) -> Unit
 ) {
     OutlinedTextField(
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Text),
+        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
         label = { Text(text = text) },
         value = value,
         onValueChange = onChange,

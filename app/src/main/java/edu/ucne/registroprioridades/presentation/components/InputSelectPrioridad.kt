@@ -51,10 +51,10 @@ fun InputSelectPrioridad(
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color(0xFF0275d8),
-                focusedLabelColor = Color(0xFF0275d8),
-                unfocusedLabelColor = Color(0xFF0275d8),
-                unfocusedBorderColor = Color(0xFF0275d8),
+                focusedBorderColor = Color(0xFF415f91),
+                focusedLabelColor = Color(0xFF415f91),
+                unfocusedLabelColor = Color(0xFF415f91),
+                unfocusedBorderColor = Color(0xFF415f91),
             )
         )
         ExposedDropdownMenu(
@@ -77,7 +77,7 @@ fun InputSelectPrioridad(
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = errorMessage,
-            color = Color.Red,
+            color = Color(0xFFCB4238),
             modifier = Modifier.fillMaxWidth()
         )
     }
