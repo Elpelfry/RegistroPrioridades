@@ -1,4 +1,4 @@
-package edu.ucne.registroprioridades.presentation.sistema
+package edu.ucne.registroprioridades.presentation.product
 
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
@@ -47,56 +47,56 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.registroprioridades.data.local.entities.SistemaEntity
+import edu.ucne.registroprioridades.data.local.entities.ProductEntity
 import edu.ucne.registroprioridades.presentation.components.TopBarComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun SistemaListScreen(
-    viewModel: SistemaViewModel = hiltViewModel(),
+fun ProductListScreen(
+    viewModel: ProductViewModel = hiltViewModel(),
     onEdit: (Int) -> Unit,
-    onAddSistema: () -> Unit,
+    onAddProduct: () -> Unit,
     onDrawer: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = true) {
-        viewModel.onEvent(SistemaEvent.GetSistemas)
+        viewModel.onEvent(ProductEvent.GetProducts)
     }
-    SistemaListBody(
+    ProductListBody(
         uiState = uiState,
         onEvent = viewModel::onEvent,
         onEdit = onEdit,
-        onAddSistema = onAddSistema,
+        onAddProduct = onAddProduct,
         onDrawer = onDrawer
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SistemaListBody(
+fun ProductListBody(
     uiState: UiState,
-    onEvent: (SistemaEvent) -> Unit,
+    onEvent: (ProductEvent) -> Unit,
     onEdit: (Int) -> Unit,
-    onAddSistema: () -> Unit,
+    onAddProduct: () -> Unit,
     onDrawer: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBarComponent(
-                title = "Sistemas",
+                title = "Products",
                 onMenuClick = { onDrawer() }
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddSistema,
+                onClick = onAddProduct,
                 containerColor = Color(0xFF415f91),
                 contentColor = Color(0xFFd6e3ff)
             ) {
-                Icon(Icons.Filled.Add, "Agregar nueva entidad")
+                Icon(Icons.Filled.Add, "Add")
             }
         }
     ) {
@@ -121,8 +121,8 @@ fun SistemaListBody(
                             )
                         }
                     }
-                }else {
-                    items(uiState.sistemas, key = { it.sistemaId!! }) { sistema ->
+                } else {
+                    items(uiState.products, key = { it.productId!! }) { product ->
 
                         val coroutineScope = rememberCoroutineScope()
                         val dismissState = rememberSwipeToDismissBoxState(
@@ -130,7 +130,7 @@ fun SistemaListBody(
                                 if (state == SwipeToDismissBoxValue.EndToStart) {
                                     coroutineScope.launch {
                                         delay(0.5.seconds)
-                                        onEvent(SistemaEvent.Delete(sistema.sistemaId!!))
+                                        onEvent(ProductEvent.Delete(product.productId!!))
                                     }
                                     true
                                 } else {
@@ -171,7 +171,7 @@ fun SistemaListBody(
                                     .fillMaxWidth()
                                     .padding(8.dp)
                                     .clickable {
-                                        sistema.sistemaId?.let { onEdit(it) }
+                                        product.productId?.let { onEdit(it) }
                                     }
                                     .border(1.dp, Color(0xFF001b3e), RoundedCornerShape(8.dp)),
                                 elevation = CardDefaults.cardElevation(8.dp),
@@ -190,14 +190,21 @@ fun SistemaListBody(
                                         modifier = Modifier.weight(4f),
                                     ) {
                                         Text(
-                                            text = sistema.nombre,
+                                            text = product.title,
                                             style = MaterialTheme.typography.bodyLarge,
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFF001b3e)
                                         )
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "Descripción: ${sistema.descripcion ?: "N/A"}",
+                                            text = "Price: ${product.price}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color(0xFF565f71),
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "Description: ${product.description}",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = Color(0xFF565f71),
                                             fontWeight = FontWeight.Bold,
@@ -233,20 +240,21 @@ fun SistemaListBody(
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-private fun SistemaListPreview() {
+private fun ProductListPreview() {
 
-    val sistemas = listOf(
-        SistemaEntity(
-            sistemaId = 1,
-            nombre = "Sistema 1",
-            descripcion = "Descripción del sistema 1",
+    val products = listOf(
+        ProductEntity(
+            productId = 1,
+            title = "Producto 1",
+            price = 100.0,
+            description = "Descripcion del producto 1",
         ),
     )
-    SistemaListBody(
-        uiState = UiState(sistemas = sistemas),
+    ProductListBody(
+        uiState = UiState(products = products),
         onEvent = {},
         onEdit = {},
-        onAddSistema = {},
+        onAddProduct = {},
         onDrawer = {}
     )
 }

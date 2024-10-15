@@ -85,8 +85,8 @@ fun TicketListBody(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTicket,
-                containerColor = Color(0xFF0275d8),
-                contentColor = Color.White
+                containerColor = Color(0xFF415f91),
+                contentColor = Color(0xFFd6e3ff)
             ) {
                 Icon(Icons.Filled.Add, "Agregar nuevo ticket")
             }
@@ -122,8 +122,8 @@ fun TicketListBody(
                         backgroundContent = {
                             val color by animateColorAsState(
                                 when (dismissState.targetValue) {
-                                    SwipeToDismissBoxValue.Settled -> Color.White
-                                    SwipeToDismissBoxValue.EndToStart -> Color.Red
+                                    SwipeToDismissBoxValue.Settled -> Color.Transparent
+                                    SwipeToDismissBoxValue.EndToStart -> Color(0xFFCB4238)
                                     SwipeToDismissBoxValue.StartToEnd -> TODO()
                                 }, label = "Changing color"
                             )
@@ -150,10 +150,10 @@ fun TicketListBody(
                                 .clickable {
                                     ticket.ticketId?.let { it1 -> onEdit(ticket.ticketId) }
                                 }
-                                .border(0.5.dp, Color(0xFF0275d8), RoundedCornerShape(8.dp)),
+                                .border(1.dp, Color(0xFF001b3e), RoundedCornerShape(8.dp)),
                             elevation = CardDefaults.cardElevation(8.dp),
                             colors = CardDefaults.cardColors(
-                                Color(0xFFf4eeec),
+                                Color(0xFFd6e3ff),
                             )
                         ) {
                             Row(
@@ -170,26 +170,26 @@ fun TicketListBody(
                                         text = ticket.asunto,
                                         style = MaterialTheme.typography.bodyLarge,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0275d8)
+                                        color = Color(0xFF001b3e)
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "Cliente: ${ticket.cliente}",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color.DarkGray,
+                                        color = Color(0xFF565f71),
                                         fontWeight = FontWeight.Bold,
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = "Fecha: ${ticket.fecha}",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color.DarkGray,
+                                        color = Color(0xFF565f71),
                                         fontWeight = FontWeight.Bold,
                                     )
                                 }
                             }
                             HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 20.dp),
+                                modifier = Modifier.padding(horizontal = 35.dp),
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
                             )
                         }
