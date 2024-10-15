@@ -1,6 +1,6 @@
 package edu.ucne.registroprioridades.presentation.sistema
 
-import edu.ucne.registroprioridades.data.remote.dto.SistemaDto
+import edu.ucne.registroprioridades.data.local.entities.SistemaEntity
 
 data class UiState(
     val sistemaId: Int? = null,
@@ -9,5 +9,7 @@ data class UiState(
     val descripcion: String = "",
     val errorDescripcion: String = "",
     var validation: Boolean = false,
-    val sistemas: List<SistemaDto> = emptyList()
+    val sistemas: List<SistemaEntity> = emptyList(),
+    val isLoading: Boolean = false,
+    val errorMessage: String = ""
 )

@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import edu.ucne.registroprioridades.data.remote.dto.SistemaDto
 import edu.ucne.registroprioridades.data.repository.SistemaRepository
+import edu.ucne.registroprioridades.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,7 +31,6 @@ class SistemaViewModel @Inject constructor(
             is SistemaEvent.DescripcionChange -> onDescripcionChanged(event.des)
             is SistemaEvent.NombreChange -> onNombreChanged(event.nom)
             is SistemaEvent.Delete -> deleteSistema(event.id)
-            is SistemaEvent.Edit -> editSistema(event.id, event.uiState)
             is SistemaEvent.SelectSistema -> selectSistema(event.id)
             SistemaEvent.Save -> saveSistema()
             SistemaEvent.GetSistemas -> getSistemas()
@@ -36,44 +38,102 @@ class SistemaViewModel @Inject constructor(
             SistemaEvent.Validation -> uiState.value.validation = validation()
         }
     }
-
     private fun getSistemas() {
         viewModelScope.launch {
-            try {
-
-                val sistemas = sistemaRepository.getSistemas()
-                _uiState.update { it.copy(sistemas = sistemas) }
-
-            } catch (e: Exception) {
-                e.printStackTrace()
+            sistemaRepository.getSistemas().collectLatest { result ->
+                when(result){
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                sistemas = result.data ?: emptyList(),
+                                isLoading = false,
+                                errorMessage = ""
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = it.errorMessage,
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
             }
         }
     }
 
     private fun selectSistema(id: Int){
         viewModelScope.launch {
-            val sistema = sistemaRepository.getSistemas().find { it.sistemaId == id }
-            _uiState.update {
-                it.copy(
-                    sistemaId = sistema?.sistemaId,
-                    nombre = sistema?.nombre ?: "",
-                    descripcion = sistema?.descripcion ?: ""
-                )
+            sistemaRepository.find(id).collectLatest { result ->
+                when(result){
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                sistemaId = result.data?.sistemaId,
+                                nombre = result.data?.nombre ?: "",
+                                descripcion = result.data?.descripcion ?: ""
+                            )
+                        }
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = result.message ?: "Error desconocido"
+                            )
+                        }
+                    }
+                }
             }
-        }
-    }
-
-    private fun editSistema(id: Int, uiState: UiState){
-        viewModelScope.launch {
-            sistemaRepository.updateSistemas(id, uiState.toEntity())
-            getSistemas()
         }
     }
 
     private fun deleteSistema(id: Int){
         viewModelScope.launch {
-            sistemaRepository.deleteSistemas(id)
-            getSistemas()
+            sistemaRepository.deleteSistemas(id).let { result ->
+                when(result) {
+                    is Resource.Loading -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = true
+                            )
+                        }
+                    }
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                sistemas = it.sistemas.filterNot { sistema -> sistema.sistemaId == id },
+                                isLoading = false,
+                                errorMessage = ""
+                            )
+                        }
+                        getSistemas()
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = result.message ?: "Error desconocido",
+                                isLoading = false
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -95,12 +155,38 @@ class SistemaViewModel @Inject constructor(
         }
     }
 
-    private fun saveSistema(){
+    private fun saveSistema() {
         viewModelScope.launch {
-            if(uiState.value.sistemaId != null && uiState.value.sistemaId != 0){
-                sistemaRepository.updateSistemas(uiState.value.sistemaId!!, uiState.value.toEntity())
-            }else{
-                sistemaRepository.addSistemas(uiState.value.toEntity())
+            val sistema = uiState.value.toEntity()
+            val result = if (uiState.value.sistemaId != null && uiState.value.sistemaId != 0) {
+                sistemaRepository.updateSistemas(uiState.value.sistemaId!!, sistema)
+            } else {
+                sistemaRepository.addSistemas(sistema)
+            }
+            
+            result.collect { resource ->
+                when (resource) {
+                    is Resource.Loading -> {
+                        _uiState.update { it.copy(isLoading = true) }
+                    }
+                    is Resource.Success -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = ""
+                            )
+                        }
+                        getSistemas()
+                    }
+                    is Resource.Error -> {
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = resource.message ?: "Error desconocido"
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -110,7 +196,9 @@ class SistemaViewModel @Inject constructor(
             it.copy(
                 sistemaId = null,
                 nombre = "",
-                descripcion = ""
+                descripcion = "",
+                errorNombre = "",
+                errorDescripcion = "",
             )
         }
     }

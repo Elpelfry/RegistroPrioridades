@@ -1,5 +1,6 @@
 package edu.ucne.registroprioridades.presentation.sistema
 
+import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -38,12 +41,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import edu.ucne.registroprioridades.data.remote.dto.SistemaDto
+import edu.ucne.registroprioridades.data.local.entities.SistemaEntity
 import edu.ucne.registroprioridades.presentation.components.TopBarComponent
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -55,7 +59,7 @@ fun SistemaListScreen(
     onEdit: (Int) -> Unit,
     onAddSistema: () -> Unit,
     onDrawer: () -> Unit
-)  {
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = true) {
         viewModel.onEvent(SistemaEvent.GetSistemas)
@@ -78,7 +82,7 @@ fun SistemaListBody(
     onAddSistema: () -> Unit,
     onDrawer: () -> Unit
 ) {
-    Scaffold (
+    Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopBarComponent(
@@ -89,13 +93,13 @@ fun SistemaListBody(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddSistema,
-                containerColor = Color(0xFF0275d8),
-                contentColor = Color.White
+                containerColor = Color(0xFF415f91),
+                contentColor = Color(0xFFd6e3ff)
             ) {
                 Icon(Icons.Filled.Add, "Agregar nueva entidad")
             }
         }
-    ){
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -104,92 +108,121 @@ fun SistemaListBody(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(uiState.sistemas, key = {it.sistemaId!!}) { sistema ->
-
-                    val coroutineScope = rememberCoroutineScope()
-                    val dismissState = rememberSwipeToDismissBoxState(
-                        confirmValueChange = { state ->
-                            if (state == SwipeToDismissBoxValue.EndToStart) {
-                                coroutineScope.launch {
-                                    delay(0.5.seconds)
-                                    onEvent(SistemaEvent.Delete(sistema.sistemaId!!))
-                                }
-                                true
-                            } else {
-                                false
-                            }
-                        }
-                    )
-                    SwipeToDismissBox(
-                        state = dismissState,
-                        enableDismissFromStartToEnd = false,
-                        backgroundContent = {
-                            val color by animateColorAsState(
-                                when (dismissState.targetValue) {
-                                    SwipeToDismissBoxValue.Settled -> Color.White
-                                    SwipeToDismissBoxValue.EndToStart -> Color.Red
-                                    SwipeToDismissBoxValue.StartToEnd -> TODO()
-                                }, label = "Changing color"
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(color, shape = RoundedCornerShape(8.dp))
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.CenterEnd
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = null,
-                                    tint = Color.White
-                                )
-                            }
-
-                        },
-                        modifier = Modifier
-                    ) {
-                        Card(
+                if (uiState.isLoading) {
+                    item {
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .clickable {
-                                    sistema.sistemaId?.let { onEdit(it) }
-                                }
-                                .border(0.5.dp, Color(0xFF0275d8), RoundedCornerShape(8.dp)),
-                            elevation = CardDefaults.cardElevation(8.dp),
-                            colors = CardDefaults.cardColors(
-                                Color(0xFFf4eeec),
-                            )
+                                .fillMaxSize()
+                                .wrapContentSize(Alignment.Center)
                         ) {
-                            Row(
+                            CircularProgressIndicator(
+                                modifier = Modifier.padding(16.dp),
+                                color = Color(0xFF415f91)
+                            )
+                        }
+                    }
+                }else {
+                    items(uiState.sistemas, key = { it.sistemaId!! }) { sistema ->
+
+                        val coroutineScope = rememberCoroutineScope()
+                        val dismissState = rememberSwipeToDismissBoxState(
+                            confirmValueChange = { state ->
+                                if (state == SwipeToDismissBoxValue.EndToStart) {
+                                    coroutineScope.launch {
+                                        delay(0.5.seconds)
+                                        onEvent(SistemaEvent.Delete(sistema.sistemaId!!))
+                                    }
+                                    true
+                                } else {
+                                    false
+                                }
+                            }
+                        )
+                        SwipeToDismissBox(
+                            state = dismissState,
+                            enableDismissFromStartToEnd = false,
+                            backgroundContent = {
+                                val color by animateColorAsState(
+                                    when (dismissState.targetValue) {
+                                        SwipeToDismissBoxValue.Settled -> Color.Transparent
+                                        SwipeToDismissBoxValue.EndToStart -> Color(0xFFCB4238)
+                                        SwipeToDismissBoxValue.StartToEnd -> TODO()
+                                    }, label = "Changing color"
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .background(color, shape = RoundedCornerShape(8.dp))
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null,
+                                        tint = Color.White
+                                    )
+                                }
+
+                            },
+                            modifier = Modifier
+                        ) {
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(25.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                    .padding(8.dp)
+                                    .clickable {
+                                        sistema.sistemaId?.let { onEdit(it) }
+                                    }
+                                    .border(1.dp, Color(0xFF001b3e), RoundedCornerShape(8.dp)),
+                                elevation = CardDefaults.cardElevation(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    Color(0xFFd6e3ff),
+                                )
                             ) {
-                                Column(
-                                    modifier = Modifier.weight(4f),
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(25.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(
-                                        text = sistema.nombre,
-                                        style = MaterialTheme.typography.bodyLarge,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF0275d8)
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Text(
-                                        text = "Descripción: ${sistema.descripcion ?: "N/A"}",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = Color.DarkGray,
-                                        fontWeight = FontWeight.Bold,
-                                    )
+                                    Column(
+                                        modifier = Modifier.weight(4f),
+                                    ) {
+                                        Text(
+                                            text = sistema.nombre,
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF001b3e)
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "Descripción: ${sistema.descripcion ?: "N/A"}",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color(0xFF565f71),
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                    }
                                 }
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 35.dp),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+                                )
                             }
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = 20.dp),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
-                            )
+                        }
+                    }
+                }
+                if (uiState.errorMessage != "") {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .wrapContentSize(Alignment.Center)
+                        ) {
+                            Toast.makeText(
+                                LocalContext.current,
+                                uiState.errorMessage,
+                                Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -203,7 +236,7 @@ fun SistemaListBody(
 private fun SistemaListPreview() {
 
     val sistemas = listOf(
-        SistemaDto(
+        SistemaEntity(
             sistemaId = 1,
             nombre = "Sistema 1",
             descripcion = "Descripción del sistema 1",
