@@ -53,4 +53,8 @@ object AppModule {
     fun provideTicketDao(ticketDb: TicketDb) = ticketDb.ticketDao()
     @Provides
     fun providePrioridadDao(ticketDb: TicketDb) = ticketDb.prioridadDao()
+    @Provides
+    fun provideSistemaDao(ticketDb: TicketDb) = ticketDb.sistemaDao()
+    @Provides
+    fun provideUsuarioDao(ticketDb: TicketDb) = ticketDb.productDao()
 }
